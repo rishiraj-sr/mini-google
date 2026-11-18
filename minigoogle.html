@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google! (1998) – Search Engine &amp; PageRank Simulator</title>
+  <style>
+    /* -------------------------------------------------------------
+       1998 GOOGLE NOSTALGIA AESTHETICS & RESET
+       ------------------------------------------------------------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #000000;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 14px;
+      line-height: 1.45;
+      padding: 15px 20px 40px 20px;
+    }
+
+    /* Classic Hyperlinks */
+    a {
+      color: #0000cc;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    a:visited {
+      color: #551a8b;
+    }
+    a:active {
+      color: #ff0000;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* -------------------------------------------------------------
+       1998 RETRO GOOGLE HEADER & LOGO
+       ------------------------------------------------------------- */
+    .header-area {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #999999;
+    }
+
+    .top-meta-banner {
+      font-size: 11px;
+      color: #555555;
+      margin-bottom: 8px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .logo-container {
+      display: inline-block;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .google-logo {
+      font-family: 'Times New Roman', Times, 'Georgia', serif;
+      font-size: 58px;
+      font-weight: bold;
+      letter-spacing: -2px;
+      text-shadow: 2px 2px 0px #dcdcdc;
+      display: inline-block;
+    }
+
+    .logo-g1 { color: #1756c8; }
+    .logo-o1 { color: #dc143c; }
+    .logo-o2 { color: #e6a100; }
+    .logo-g2 { color: #1756c8; }
+    .logo-l  { color: #109618; }
+    .logo-e  { color: #dc143c; }
+    .logo-ex { color: #109618; font-style: italic; }
+
+    .beta-badge {
+      font-size: 14px;
+      font-weight: normal;
+      color: #dc143c;
+      letter-spacing: 0px;
+      vertical-align: super;
+      margin-left: 2px;
+      font-family: sans-serif;
+    }
+
+    .tagline {
+      font-size: 15px;
+      font-weight: normal;
+      font-style: italic;
+      color: #333333;
+      margin-top: -2px;
+      margin-bottom: 14px;
+    }
+
+    /* -------------------------------------------------------------
+       SEARCH FORM & 1998 BUTTONS
+       ------------------------------------------------------------- */
+    .search-box-wrap {
+      background: #eeeeee;
+      border: 1px solid #7f9db9;
+      padding: 12px 16px;
+      display: inline-block;
+      border-radius: 0;
+      margin-bottom: 12px;
+      box-shadow: inset 1px 1px 0px #ffffff;
+    }
+
+    .search-input {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 16px;
+      padding: 4px 6px;
+      width: 320px;
+      max-width: 85vw;
+      border: 2px inset #999999;
+      background-color: #ffffff;
+      outline: none;
+    }
+
+    .search-input:focus {
+      background-color: #ffffee;
+    }
+
+    .btn-group {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Classic Windows 95/98 beveled buttons */
+    .btn-classic {
+      background-color: #ece9d8;
+      color: #000000;
+      border: 2px outset #ffffff;
+      border-right-color: #7b796d;
+      border-bottom-color: #7b796d;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: normal;
+      padding: 3px 12px;
+      cursor: pointer;
+      outline: none;
+      user-select: none;
+    }
+
+    .btn-classic:hover {
+      background-color: #f5f2e3;
+    }
+
+    .btn-classic:active {
+      border: 2px inset #ffffff;
+      border-left-color: #7b796d;
+      border-top-color: #7b796d;
+      padding: 4px 11px 2px 13px;
+    }
+
+    .btn-rerun {
+      background-color: #e2ecf7;
+      border-color: #ffffff #5c7f99 #5c7f99 #ffffff;
+      font-weight: bold;
+    }
+
+    /* Preset Keywords */
+    .sample-queries {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #444444;
+    }
+
+    .sample-queries a {
+      margin: 0 4px;
+      color: #0000cc;
+      text-decoration: underline;
+    }
+
+    /* -------------------------------------------------------------
+       METRIC & STATUS BAR
+       ------------------------------------------------------------- */
+    .status-ribbon {
+      background: #fdfcee;
+      border: 1px solid #dcd8aa;
+      padding: 6px 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #109618;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* -------------------------------------------------------------
+       SIDE-BY-SIDE COLUMNS
+       ------------------------------------------------------------- */
+    .columns-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: stretch;
+    }
+
+    .result-column {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #999999;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .column-header {
+      padding: 8px 12px;
+      border-bottom: 2px solid;
+    }
+
+    .column-left .column-header {
+      background-color: #f0f4f9;
+      border-bottom-color: #245dc1;
+    }
+
+    .column-right .column-header {
+      background-color: #eaf1f9;
+      border-bottom-color: #109618;
+    }
+
+    .column-title {
+      font-size: 17px;
+      font-weight: bold;
+      color: #000080;
+      margin-bottom: 2px;
+    }
+
+    .column-subtitle {
+      font-size: 11px;
+      color: #444444;
+      font-family: Arial, sans-serif;
+    }
+
+    .column-body {
+      padding: 12px;
+      flex: 1;
+      background: #ffffff;
+    }
+
+    /* Search Result Card */
+    .result-card {
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #cccccc;
+    }
+
+    .result-card:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .result-top-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .rank-badge {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 1px 6px;
+      background: #eeeeee;
+      border: 1px solid #999999;
+      color: #333333;
+      white-space: nowrap;
+    }
+
+    .rank-1 {
+      background: #ffffe0;
+      border-color: #ccaa00;
+      color: #8b6508;
+    }
+
+    .result-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0000cc;
+      text-decoration: underline;
+    }
+
+    .result-url {
+      color: #008000;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .result-snippet {
+      font-size: 13px;
+      color: #000000;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .highlight-keyword {
+      background-color: #ffff66;
+      font-weight: bold;
+      padding: 0 1px;
+    }
+
+    .result-meta-explanation {
+      background-color: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      padding: 5px 8px;
+      font-size: 11px;
+      color: #333333;
+      font-family: Arial, sans-serif;
+      border-left: 3px solid #245dc1;
+      line-height: 1.35;
+    }
+
+    .column-right .result-meta-explanation {
+      border-left-color: #109618;
+    }
+
+    /* PageRank Visual Progress Bar */
+    .pagerank-metric-box {
+      margin: 5px 0 6px 0;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      background: #e4e4e4;
+      border: 1px inset #888888;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #245dc1;
+      transition: width 0.3s ease;
+    }
+
+    .links-topology-tag {
+      font-size: 11px;
+      color: #555555;
+      font-family: Arial, sans-serif;
+      margin-top: 4px;
+    }
+
+    /* -------------------------------------------------------------
+       EMPTY & LOADING STATES
+       ------------------------------------------------------------- */
+    .empty-state {
+      padding: 24px 16px;
+      text-align: center;
+      color: #666666;
+      font-style: italic;
+    }
+
+    .loading-notice {
+      display: none;
+      background: #fff8cc;
+      border: 1px solid #e6b800;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+    }
+
+    /* -------------------------------------------------------------
+       COMPARISON FEATURE
+       ------------------------------------------------------------- */
+    .comparison-section {
+      border: 2px solid #000080;
+      background-color: #f7f9fc;
+      padding: 16px 20px;
+      margin-top: 10px;
+      margin-bottom: 24px;
+    }
+
+    .comparison-heading {
+      font-size: 20px;
+      color: #000080;
+      border-bottom: 1px solid #b0c4de;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .comparison-box {
+      background: #ffffff;
+      border: 1px solid #7f9db9;
+      padding: 10px 14px;
+    }
+
+    .comparison-box-title {
+      font-weight: bold;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      color: #333333;
+      margin-bottom: 6px;
+    }
+
+    .comparison-verdict {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .verdict-badge {
+      display: inline-block;
+      font-weight: bold;
+      padding: 2px 8px;
+      border: 1px solid #999;
+      background: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .verdict-badge.diverged {
+      background: #fff0f0;
+      border-color: #cc0000;
+      color: #cc0000;
+    }
+
+    .verdict-badge.matched {
+      background: #f0fff0;
+      border-color: #008800;
+      color: #008800;
+    }
+
+    /* Page 6 Spotlight */
+    .page6-spotlight {
+      background: #fff5f5;
+      border: 1px solid #e89a9a;
+      border-left: 4px solid #dc143c;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      font-family: Arial, sans-serif;
+    }
+
+    .page6-spotlight strong {
+      color: #b30000;
+    }
+
+    /* -------------------------------------------------------------
+       DATASET & WEB GRAPH EXPLORER (1998 TABLE STYLE)
+       ------------------------------------------------------------- */
+    .dataset-section {
+      border: 1px solid #999999;
+      background: #fdfdfd;
+      padding: 14px;
+      margin-bottom: 24px;
+    }
+
+    .dataset-section h3 {
+      font-size: 16px;
+      color: #000080;
+      margin-bottom: 8px;
+    }
+
+    .dataset-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    .dataset-table th, .dataset-table td {
+      border: 1px solid #cccccc;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    .dataset-table th {
+      background: #e9e9e9;
+      color: #000000;
+      font-weight: bold;
+    }
+
+    .dataset-table tr:nth-child(even) {
+      background-color: #f7f7f7;
+    }
+
+    .badge-inbound {
+      background: #e6f4ea;
+      color: #137333;
+      padding: 1px 4px;
+      border: 1px solid #ceead6;
+      font-weight: bold;
+    }
+
+    .badge-outbound {
+      background: #e8f0fe;
+      color: #1a73e8;
+      padding: 1px 4px;
+      border: 1px solid #d2e3fc;
+    }
+
+    /* -------------------------------------------------------------
+       1998 FOOTER
+       ------------------------------------------------------------- */
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #cccccc;
+      font-size: 12px;
+      color: #555555;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 850px) {
+      .columns-wrapper {
+        flex-direction: column;
+      }
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+      .google-logo {
+        font-size: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TOP 1998 RETRO HEADER -->
+  <div class="header-area">
+    <div class="top-meta-banner">
+      [ Stanford WebBase Project // CS244A Search Engine &amp; Graph Simulation // Local Corpus Engine ]
+    </div>
+
+    <!-- Google 1998 Logo -->
+    <div class="logo-container">
+      <span class="google-logo">
+        <span class="logo-g1">G</span><span class="logo-o1">o</span><span class="logo-o2">o</span><span class="logo-g2">g</span><span class="logo-l">l</span><span class="logo-e">e</span><span class="logo-ex">!</span>
+      </span>
+      <span class="beta-badge">BETA</span>
+    </div>
+
+    <div class="tagline">Search the Web – 1998 Style</div>
+
+    <!-- Search Form -->
+    <div class="search-box-wrap">
+      <form id="search-form" onsubmit="handleSearch(event)">
+        <input 
+          type="text" 
+          id="query-input" 
+          class="search-input" 
+          value="pizza" 
+          placeholder="Enter keyword (e.g. pizza, Pune, food)..." 
+          autocomplete="off"
+        />
+        <div class="btn-group">
+          <button type="submit" class="btn-classic">Google Search</button>
+          <button type="button" class="btn-classic" onclick="clearSearch()">Clear Search</button>
+          <button type="button" class="btn-classic btn-rerun" onclick="rerunPageRankSimulation()">Rerun Random Surfer (100k Moves)</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Preset Query Suggestions -->
+    <div class="sample-queries">
+      Try nostalgic keyword queries:
+      <a href="javascript:void(0)" onclick="setQuery('pizza')">pizza</a> |
+      <a href="javascript:void(0)" onclick="setQuery('Pune')">Pune</a> |
+      <a href="javascript:void(0)" onclick="setQuery('food')">food</a> |
+      <a href="javascript:void(0)" onclick="setQuery('college')">college</a> |
+      <a href="javascript:void(0)" onclick="setQuery('chai')">chai</a> |
+      <a href="javascript:void(0)" onclick="setQuery('pizza dough')">pizza dough</a>
+    </div>
+  </div>
+
+  <!-- Real-time Loading Indicator -->
+  <div id="loading-bar" class="loading-notice">
+    <strong>Running 100,000 Random Surfer moves in browser memory...</strong> Please wait.
+  </div>
+
+  <!-- STATUS RIBBON -->
+  <div class="status-ribbon">
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <strong>Index Corpus:</strong> <span id="indexed-pages-count">6</span> pages indexed
+    </div>
+    <div class="status-badge">
+      <strong>Keyword Matches:</strong> <span id="keyword-matches-count">6 pages</span>
+    </div>
+    <div class="status-badge">
+      <strong>Simulation:</strong> <span id="simulation-status">100,000 moves completed (d = 0.85)</span>
+    </div>
+    <div class="status-badge">
+      <strong>PRNG Seed:</strong> <span id="seed-display">1998</span>
+    </div>
+  </div>
+
+  <!-- SIDE-BY-SIDE RESULT COLUMNS -->
+  <div class="columns-wrapper">
+
+    <!-- LEFT COLUMN: 1998 GOOGLE KEYWORD RANKING -->
+    <div class="result-column column-left">
+      <div class="column-header">
+        <div class="column-title">1998 Google – Keyword Ranking</div>
+        <div class="column-subtitle">Simulating early search engines: Sorted strictly by raw keyword frequency</div>
+      </div>
+      <div class="column-body" id="keyword-results-container">
+        <!-- Rendered via JavaScript -->
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: MODERN GOOGLE PAGERANK -->
+    <div class="result-column column-right">
+      <div class="column-header">
+        <div class="column-title">Modern Google – PageRank Algorithm</div>
+        <div class="column-subtitle">Random Surfer Simulation (100,000 steps with 85% link damping factor)</div>
+      </div>
+      <div class="column-body" id="pagerank-results-container">
+        <!-- Rendered via JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COMPARISON SECTION -->
+  <div class="comparison-section" id="comparison-area">
+    <div class="comparison-heading">How Search Ranking Has Changed</div>
+    
+    <div class="comparison-verdict" id="comparison-verdict-box">
+      <!-- Dynamic comparison content populated by JS -->
+    </div>
+
+    <div class="comparison-grid">
+      <div class="comparison-box">
+        <div class="comparison-box-title">Left Champion: Early Keyword Ranking</div>
+        <div id="keyword-winner-summary">Loading...</div>
+      </div>
+      <div class="comparison-box">
+        <div class="comparison-box-title">Right Champion: Modern PageRank</div>
+        <div id="pagerank-winner-summary">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Page 6 SEO Exploit Breakdown -->
+    <div class="page6-spotlight" id="page6-spotlight-box">
+      <strong>The Page 6 Keyword Stuffing Exploit:</strong>
+      <code>pizza-pizza-pizza.com</code> repeats the keyword <em>"pizza"</em> exactly <strong>10 times</strong> in raw text.
+      Under early 1998 search algorithms, this page easily ranked <strong>#1</strong> because frequency was the dominant metric.
+      However, Page 6 has <strong>0 incoming links</strong> from any other page.
+      Under the Random Surfer PageRank algorithm, Page 6 ranks <strong>dead last (#6)</strong> with only ~2.4% share, visited almost exclusively when the surfer makes a random 15% teleportation jump. PageRank eliminated keyword stuffing by measuring peer link authority.
+    </div>
+  </div>
+
+  <!-- DATASET & LINK GRAPH TOPOLOGY VIEWER -->
+  <div class="dataset-section">
+    <h3>The 6-Page Web Graph &amp; Dataset Topology</h3>
+    <p style="font-size: 12px; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif;">
+      The internal link structure directly determines how the Random Surfer navigates the web:
+    </p>
+    <table class="dataset-table">
+      <thead>
+        <tr>
+          <th style="width: 50px;">Page</th>
+          <th style="width: 170px;">URL</th>
+          <th>Page Text / Content</th>
+          <th style="width: 130px;">Outgoing Links</th>
+          <th style="width: 150px;">Incoming Links (Voters)</th>
+        </tr>
+      </thead>
+      <tbody id="dataset-table-body">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 1998 VINTAGE FOOTER -->
+  <div class="footer">
+    <p>Copyright &copy; 1998 Google Inc. &bull; Educational Search Engine &amp; PageRank Simulator</p>
+    <p style="margin-top: 4px; font-size: 11px; color: #777;">
+      Demonstrating the transition from on-page keyword density indexing (1995-1997) to eigenvector/random walk link analysis (Brin &amp; Page, Stanford University, 1998).
+    </p>
+  </div>
+
+</div>
+
+<!-- -------------------------------------------------------------
+     VANILLA JAVASCRIPT LOGIC & ALGORITHMS
+     ------------------------------------------------------------- -->
+<script>
+  /* -------------------------------------------------------------
+     1. THE SIX DATASET PAGES (AS SPECIFIED)
+     ------------------------------------------------------------- */
+  const DATASET = [
+    {
+      id: 1,
+      url: "pune-food-guide.com",
+      title: "Pune Food Guide – Street Food & Local Delicacies",
+      text: "Where to eat in Pune - vada pav and biryani and pizza",
+      links: [2]
+    },
+    {
+      id: 2,
+      url: "best-pizza-pune.com",
+      title: "Best Pizza Pune – Fresh Wood-Fired Pizzeria",
+      text: "Fresh wood-fired pizza made daily - try our cheese pizza",
+      links: [1, 3]
+    },
+    {
+      id: 3,
+      url: "college-canteen-blog.com",
+      title: "College Canteen Blog – Student Food Reviews",
+      text: "Student reviews of canteen food and chai and Friday pizza",
+      links: [2, 4]
+    },
+    {
+      id: 4,
+      url: "pizza-recipes-home.com",
+      title: "Pizza Recipes at Home – Homemade Dough & Sauces",
+      text: "Make pizza at home - pizza dough and pizza sauce",
+      links: [2, 5]
+    },
+    {
+      id: 5,
+      url: "cheap-eats-pune.com",
+      title: "Cheap Eats Pune – Best Budget Meals Under 100",
+      text: "Good food under 100 rupees - misal and dosa and pizza slices",
+      links: [2]
+    },
+    {
+      id: 6,
+      url: "pizza-pizza-pizza.com",
+      title: "Pizza Pizza Pizza – Keyword Farm",
+      text: "pizza pizza pizza pizza pizza pizza pizza pizza pizza pizza",
+      links: [1]
+    }
+  ];
+
+  /* -------------------------------------------------------------
+     2. PSEUDO-RANDOM NUMBER GENERATOR (MULBERRY32)
+     Ensures reproducible, deterministic results for 100,000 moves
+     ------------------------------------------------------------- */
+  let currentSeed = 1998;
+
+  function createMulberry32(seed) {
+    let s = seed >>> 0;
+    return function() {
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* -------------------------------------------------------------
+     3. PAGERANK RANDOM SURFER SIMULATION (100,000 MOVES)
+     - 85% link following
+     - 15% random teleportation
+     - Dangling node handling
+     ------------------------------------------------------------- */
+  let latestPageRankResults = [];
+
+  function runRandomSurferSimulation(seedVal = currentSeed) {
+    const startTime = performance.now();
+    const prng = createMulberry32(seedVal);
+    const totalMoves = 100000;
+    const dampingFactor = 0.85;
+
+    // Track visit counts for each of the 6 pages
+    const visitCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    
+    // Page lookup map
+    const pageMap = {};
+    DATASET.forEach(p => { pageMap[p.id] = p; });
+
+    // Step 1: Start surfer on a randomly selected page (1 to 6)
+    let currentPageId = Math.floor(prng() * 6) + 1;
+
+    // Step 2: Perform exactly 100,000 surfer moves
+    for (let move = 0; move < totalMoves; move++) {
+      const r = prng();
+      const currentPage = pageMap[currentPageId];
+
+      if (r < dampingFactor && currentPage && currentPage.links && currentPage.links.length > 0) {
+        // Follow one outgoing link chosen randomly
+        const nextIdx = Math.floor(prng() * currentPage.links.length);
+        currentPageId = currentPage.links[nextIdx];
+      } else {
+        // Teleport to a uniformly random page among all 6 pages
+        currentPageId = Math.floor(prng() * 6) + 1;
+      }
+
+      visitCounts[currentPageId]++;
+    }
+
+    const durationMs = (performance.now() - startTime).toFixed(1);
+
+    // Compute PageRank scores and format
+    latestPageRankResults = DATASET.map(page => {
+      const visits = visitCounts[page.id] || 0;
+      const score = (visits / totalMoves) * 100;
+      return {
+        ...page,
+        visits: visits,
+        score: score,
+        scoreFormatted: score.toFixed(2)
+      };
+    });
+
+    // Sort descending by PageRank score
+    latestPageRankResults.sort((a, b) => b.score - a.score);
+
+    // Update status bar
+    document.getElementById('simulation-status').textContent = 
+      `100,000 moves completed in ${durationMs}ms (d = 0.85)`;
+    document.getElementById('seed-display').textContent = seedVal;
+
+    return latestPageRankResults;
+  }
+
+  /* -------------------------------------------------------------
+     4. KEYWORD FREQUENCY RANKING (1998 EARLY SEARCH ALGORITHM)
+     ------------------------------------------------------------- */
+  function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function countKeywordMatches(text, query) {
+    if (!text || !query) return 0;
+    const cleanQuery = query.trim();
+    if (!cleanQuery) return 0;
+    
+    // Case-insensitive word-boundary or subphrase match
+    const regex = new RegExp('\\b' + escapeRegex(cleanQuery) + '\\b', 'gi');
+    const matches = text.match(regex);
+    return matches ? matches.length : 0;
+  }
+
+  function runKeywordRanking(query) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return { pages: [], totalMatches: 0, query: '' };
+    }
+
+    const scoredPages = [];
+
+    DATASET.forEach(page => {
+      // Primary search in page body text
+      let count = countKeywordMatches(page.text, trimmed);
+      let matchedSource = "body text";
+
+      // If zero matches in body text, check URL/domain or title
+      if (count === 0) {
+        const urlText = page.url.replace(/[-.]/g, ' ');
+        const urlMatches = countKeywordMatches(urlText, trimmed);
+        if (urlMatches > 0) {
+          count = urlMatches;
+          matchedSource = "URL domain";
+        }
+      }
+
+      if (count > 0) {
+        scoredPages.push({
+          ...page,
+          keywordCount: count,
+          matchedSource: matchedSource
+        });
+      }
+    });
+
+    // Sort descending by keyword count
+    scoredPages.sort((a, b) => b.keywordCount - a.keywordCount);
+
+    return {
+      pages: scoredPages,
+      totalMatches: scoredPages.length,
+      query: trimmed
+    };
+  }
+
+  /* -------------------------------------------------------------
+     5. SNIPPET HIGHLIGHTING & EXPLANATIONS
+     ------------------------------------------------------------- */
+  function highlightSnippet(text, query) {
+    if (!query.trim()) return text;
+    const regex = new RegExp('(\\b' + escapeRegex(query.trim()) + '\\b)', 'gi');
+    return text.replace(regex, '<span class="highlight-keyword">$1</span>');
+  }
+
+  function getKeywordExplanation(page, rank, count, query) {
+    if (page.id === 6 && query.toLowerCase().includes('pizza')) {
+      return `<strong>SEO Keyword Stuffing Detected:</strong> This page repeats "${query}" 10 times consecutively. In 1998, search engines naively ranked this #1 despite the content being zero-quality spam.`;
+    }
+    if (rank === 1) {
+      return `<strong>Ranked #1:</strong> Highest occurrence count (${count} match${count > 1 ? 'es' : ''}) of "${query}". 1998 keyword algorithms rewarded raw repetition.`;
+    }
+    return `<strong>Ranked #${rank}:</strong> Found ${count} match${count > 1 ? 'es' : ''} in ${page.matchedSource}. Ranked behind pages with higher repetition.`;
+  }
+
+  function getPageRankExplanation(page, rank) {
+    const incoming = getIncomingLinks(page.id);
+    if (page.id === 2) {
+      return `<strong>PageRank Champion (#1):</strong> 4 separate sites (${incoming.map(id => 'Page ' + id).join(', ')}) vote for this page. High link concentration channels random surfers here ${page.scoreFormatted}% of the time.`;
+    }
+    if (page.id === 1) {
+      return `<strong>High Authority (#2):</strong> Receives an inbound link from Page 2 (the network hub) plus Page 6. Link equity from Page 2 boosts its score to ${page.scoreFormatted}%.`;
+    }
+    if (page.id === 6) {
+      return `<strong>Zero Inbound Links (#6):</strong> No site in the index links to Page 6! The random surfer only lands here via random 15% teleport jumps (${page.scoreFormatted}% total). Keyword stuffing cannot game PageRank.`;
+    }
+    return `<strong>Ranked #${rank}:</strong> Receives links from ${incoming.length > 0 ? incoming.map(id => 'Page ' + id).join(', ') : 'no other pages'}. Scored ${page.scoreFormatted}% based on incoming link equity.`;
+  }
+
+  function getIncomingLinks(pageId) {
+    return DATASET.filter(p => p.links.includes(pageId)).map(p => p.id);
+  }
+
+  /* -------------------------------------------------------------
+     6. UI RENDERING FUNCTIONS
+     ------------------------------------------------------------- */
+  function renderKeywordResults(keywordData) {
+    const container = document.getElementById('keyword-results-container');
+    const { pages, totalMatches, query } = keywordData;
+
+    document.getElementById('keyword-matches-count').textContent = 
+      `${totalMatches} page${totalMatches === 1 ? '' : 's'} matching "${query}"`;
+
+    if (!query) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <strong>No search query entered.</strong><br>
+          Please type a keyword above (e.g. <em>pizza</em>, <em>Pune</em>, <em>food</em>) and press "Google Search".
+        </div>`;
+      return;
+    }
+
+    if (pages.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <strong>No results found for "${escapeHtml(query)}" in 1998 index.</strong><br>
+          Pages with zero occurrences do not appear in early keyword ranking.<br>
+          <small>Try searching for: <em>pizza</em>, <em>Pune</em>, <em>food</em>, <em>college</em>, or <em>chai</em>.</small>
+        </div>`;
+      return;
+    }
+
+    let html = '';
+    pages.forEach((page, index) => {
+      const rank = index + 1;
+      const rankClass = rank === 1 ? 'rank-badge rank-1' : 'rank-badge';
+      const snippetHtml = highlightSnippet(page.text, query);
+      const explanation = getKeywordExplanation(page, rank, page.keywordCount, query);
+
+      html += `
+        <div class="result-card">
+          <div class="result-top-line">
+            <span class="${rankClass}">#${rank} KEYWORD RANK</span>
+            <a href="javascript:void(0)" class="result-title" onclick="alert('Viewing 1998 archived version of: ' + '${page.url}')">${page.title}</a>
+          </div>
+          <div class="result-url">http://${page.url} &bull; <span style="color:#666;">Matches: <strong>${page.keywordCount}</strong></span></div>
+          <div class="result-snippet">${snippetHtml}</div>
+          <div class="result-meta-explanation">${explanation}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function renderPageRankResults(prList) {
+    const container = document.getElementById('pagerank-results-container');
+    let html = '';
+
+    prList.forEach((page, index) => {
+      const rank = index + 1;
+      const rankClass = rank === 1 ? 'rank-badge rank-1' : 'rank-badge';
+      const incoming = getIncomingLinks(page.id);
+      const explanation = getPageRankExplanation(page, rank);
+
+      html += `
+        <div class="result-card">
+          <div class="result-top-line">
+            <span class="${rankClass}">#${rank} PAGERANK</span>
+            <a href="javascript:void(0)" class="result-title" onclick="alert('Navigating to: ' + '${page.url}')">${page.title}</a>
+          </div>
+          <div class="result-url">http://${page.url}</div>
+          
+          <div class="pagerank-metric-box">
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-family:Arial, sans-serif;">
+              <span><strong>PageRank Score:</strong> ${page.scoreFormatted}%</span>
+              <span style="color:#555;">${page.visits.toLocaleString()} / 100,000 visits</span>
+            </div>
+            <div class="progress-track" title="PageRank Score: ${page.scoreFormatted}%">
+              <div class="progress-fill" style="width: ${Math.min(100, page.score * 2.2)}%;"></div>
+            </div>
+          </div>
+
+          <div class="links-topology-tag">
+            Incoming Links: <strong>${incoming.length}</strong> (${incoming.length > 0 ? incoming.map(id => 'Page ' + id).join(', ') : 'None'}) &bull; 
+            Outgoing: <strong>${page.links.length}</strong> (${page.links.map(id => 'Page ' + id).join(', ')})
+          </div>
+
+          <div class="result-meta-explanation" style="margin-top:6px;">${explanation}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function renderComparisonSection(keywordData, prList) {
+    const verdictBox = document.getElementById('comparison-verdict-box');
+    const keywordWinnerBox = document.getElementById('keyword-winner-summary');
+    const prWinnerBox = document.getElementById('pagerank-winner-summary');
+
+    const topKeyword = keywordData.pages.length > 0 ? keywordData.pages[0] : null;
+    const topPR = prList.length > 0 ? prList[0] : null;
+
+    if (!topKeyword) {
+      verdictBox.innerHTML = `
+        <span class="verdict-badge">No Query Comparison</span><br>
+        Please enter a valid keyword search query to compare algorithms.
+      `;
+      keywordWinnerBox.innerHTML = '<em>No keyword search results to compare.</em>';
+      prWinnerBox.innerHTML = `<strong>${topPR ? topPR.url : 'N/A'}</strong> (PageRank: ${topPR ? topPR.scoreFormatted : 0}%)`;
+      return;
+    }
+
+    const isMatch = topKeyword.id === topPR.id;
+
+    keywordWinnerBox.innerHTML = `
+      <strong>${topKeyword.url}</strong> (Rank #1)<br>
+      Matches for "${escapeHtml(keywordData.query)}": <strong>${topKeyword.keywordCount} times</strong><br>
+      <span style="font-size:11px; color:#555;">Selected purely by keyword repetition.</span>
+    `;
+
+    prWinnerBox.innerHTML = `
+      <strong>${topPR.url}</strong> (Rank #1)<br>
+      PageRank Score: <strong>${topPR.scoreFormatted}%</strong> (${topPR.visits.toLocaleString()} visits)<br>
+      <span style="font-size:11px; color:#555;">Selected by 4 authoritative incoming link votes.</span>
+    `;
+
+    if (isMatch) {
+      verdictBox.innerHTML = `
+        <span class="verdict-badge matched">Algorithms Agreed On Top Page: ${topKeyword.url}</span><br>
+        Both the early keyword frequency model and the modern PageRank algorithm selected the same page for this query.
+      `;
+    } else {
+      verdictBox.innerHTML = `
+        <span class="verdict-badge diverged">Algorithms Diverged: Different Top Pages Selected</span><br>
+        <strong>1998 Keyword Winner:</strong> <code>${topKeyword.url}</code> (Count: ${topKeyword.keywordCount})<br>
+        <strong>PageRank Winner:</strong> <code>${topPR.url}</code> (Score: ${topPR.scoreFormatted}%)<br>
+        <span style="display:block; margin-top:4px; font-size:12px; color:#444;">
+          <strong>Why they differ:</strong> Early search engines blindly trusted on-page keyword repetition, making them vulnerable to spam farms and keyword stuffing. PageRank solved this by treating hyperlinks as democratic peer recommendations, ensuring genuine authoritative hubs rank first regardless of keyword trickery.
+        </span>
+      `;
+    }
+  }
+
+  function renderDatasetTable() {
+    const tbody = document.getElementById('dataset-table-body');
+    let html = '';
+
+    DATASET.forEach(page => {
+      const incoming = getIncomingLinks(page.id);
+      html += `
+        <tr>
+          <td><strong>Page ${page.id}</strong></td>
+          <td><a href="javascript:void(0)" style="font-family:Arial,sans-serif; font-size:11px;">${page.url}</a></td>
+          <td>${escapeHtml(page.text)}</td>
+          <td>
+            <span class="badge-outbound">${page.links.map(l => 'Page ' + l).join(', ')}</span>
+          </td>
+          <td>
+            <span class="badge-inbound">${incoming.length > 0 ? incoming.map(l => 'Page ' + l).join(', ') : 'None (0)'}</span>
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&#039;');
+  }
+
+  /* -------------------------------------------------------------
+     7. USER ACTIONS & INTERACTIVITY
+     ------------------------------------------------------------- */
+  function executeSearch(queryStr) {
+    const loadingBar = document.getElementById('loading-bar');
+    loadingBar.style.display = 'block';
+
+    // Run calculations
+    setTimeout(() => {
+      // 1. Run / retrieve PageRank simulation
+      const prList = runRandomSurferSimulation(currentSeed);
+      
+      // 2. Run Keyword Frequency ranking
+      const keywordData = runKeywordRanking(queryStr);
+
+      // 3. Render both columns
+      renderKeywordResults(keywordData);
+      renderPageRankResults(prList);
+
+      // 4. Update comparison section
+      renderComparisonSection(keywordData, prList);
+
+      loadingBar.style.display = 'none';
+    }, 40);
+  }
+
+  function handleSearch(event) {
+    if (event) event.preventDefault();
+    const query = document.getElementById('query-input').value;
+    executeSearch(query);
+  }
+
+  function setQuery(word) {
+    const input = document.getElementById('query-input');
+    input.value = word;
+    executeSearch(word);
+  }
+
+  function clearSearch() {
+    const input = document.getElementById('query-input');
+    input.value = '';
+    executeSearch('');
+  }
+
+  function rerunPageRankSimulation() {
+    // Generate a fresh or re-seeded run to demonstrate Monte Carlo convergence
+    currentSeed = Math.floor(Math.random() * 100000) + 1;
+    const query = document.getElementById('query-input').value;
+    executeSearch(query);
+  }
+
+  /* -------------------------------------------------------------
+     8. INITIALIZATION ON PAGE LOAD
+     ------------------------------------------------------------- */
+  window.addEventListener('DOMContentLoaded', () => {
+    renderDatasetTable();
+    executeSearch('pizza');
+  });
+</script>
+
+</body>
+</html>
